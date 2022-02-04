@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+# Este modulo nos permite interactuar con el sistema operativo
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -117,6 +119,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
+# Agregamos STATICFILES_DIRS y apuntarlo a la nueva carpeta estática que creamos en nuestro
+# directorio base
+STATICFILES_DIRS = [
+    # el modulo os.path nos permite manipular nombres de rutas comunes
+    # os.path.join(ruta, *ruta) en python une uno o mas componentes de manera inteligente
+    os.path.join(BASE_DIR, 'static')
+]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
