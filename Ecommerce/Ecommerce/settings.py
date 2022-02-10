@@ -127,6 +127,14 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
+# esto configurara la raiz de medios para que siempre comience
+# "images/image_name"
+MEDIA_URL = '/images/'
+
+# establecemos la ruta al directorio raiz, agrefamos static/image 
+# esto nos da una ruta directa a las imagenes para cargarlas 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images')
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
