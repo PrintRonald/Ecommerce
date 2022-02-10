@@ -3,8 +3,6 @@ from django.db import models
 from django.contrib.auth.models import User
 
 # creamos el modelo de cliente
-
-
 class Customer(models.Model):
     # relacion uno a uno con modelo usuario
     user = models.OneToOneField(
@@ -16,8 +14,6 @@ class Customer(models.Model):
         return self.name
 
 # modelo de producto
-
-
 class Product(models.Model):
     name = models.CharField(max_length=200)
     price = models.FloatField()
@@ -36,8 +32,6 @@ class Product(models.Model):
         return url
 
 # modelo de pedido
-
-
 class Order(models.Model):
     # relacion uno es a mucho entre pedido y cliente
     customer = models.ForeignKey(
@@ -49,11 +43,23 @@ class Order(models.Model):
     transaction_id = models.CharField(max_length=100, null=True)
 
     def __str__(self):
-        return str(self.id)
+        return  f'Orden de {self.customer} con id : {self.id}'
+    
+    # creamos una funcion que nos sume la cantidad de cada articulo y luego sume todo en dinero
+    @property
+    def get_cart_total(self):
+        orderitems = self.orderitem_set.all()
+        total = sum([item.get_total for item in orderitems])
+        return total
+    
+    # creamos una funcion que nos sume la cantidad de cada articulo y luego sume todo
+    @property
+    def get_cart_items(self):
+        orderitems = self.orderitem_set.all()
+        total = sum([item.quantity for item in orderitems])
+        return total
 
 # modelo de articulo de pedido
-
-
 class OrderItem(models.Model):
     # atributo producto conectado al modelo de producto
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
@@ -64,9 +70,18 @@ class OrderItem(models.Model):
     # fecha en que se registra el producto
     date_added = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f'Pedido más orden: {self.order}'
+
+    # creamos una funcion que nos calcule el total de cada producto haciendo
+    # la multuplicacion de la cantidad por el precio de venta
+    @property
+    def get_total(self):
+        total = self.product.price * self.quantity
+        return total
+
+
 # modelo de envio
-
-
 class ShippingAddress(models.Model):
     # conectamos con el modelo cliente para que un cliente pueda
     # reutilizar la direccion de envio en el futuro
