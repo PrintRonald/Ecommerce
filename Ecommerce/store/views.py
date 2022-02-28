@@ -1,4 +1,12 @@
 from django.shortcuts import render
+# shortcuts nos permite usar funciones auxiliares y clases que abarcan
+# varios niveles del modelo vista controlador
+# render combina una plantilla dada cn un dicc de contexto dado y devuelve 
+# un httpresponse objeto con ese texto representado
+from django.shortcuts import render
+# http usa objetos de solicitud y respuesta para pasar el estado a través del sistema
+# en este caso obtenemos un Json 
+from django.http import JsonResponse
 # importamos todo del archivo modelo
 from .models import *
 
@@ -54,3 +62,6 @@ def checkout(request):
 	
 	context = {'items':items, 'order':order}
 	return render(request, 'store/checkout.html', context)
+
+def updateItem(request):
+	return JsonResponse('Item was added', safe=False)

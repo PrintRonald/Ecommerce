@@ -6,6 +6,7 @@
 {% load static %}
 <html lang="en">
   <head>
+    <title>Ecom</title>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <!-- responsividad -->
@@ -22,41 +23,50 @@
     />
     <!-- css -->
     <link rel="stylesheet" type="text/CSS" href="{% static 'CSS/main.css' %}" />
-    <title>Ecom</title>
+    <!-- creamos esta etiqueta para consultar si está el usuario registrado o no  
+    para lo cual creamos una variable que almecene esta solicitud de usuario-->
+    <script type="text/javascript">
+      var user = "{{request.user}}"
+
+    </script>
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="{% url 'store' %}">Ecom</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-  
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="{% url 'store' %}">Store <span class="sr-only">(current)</span></a>
-            </li>
-       
-          </ul>
-          <div class="form-inline my-2 my-lg-0">
-               <a href="#" class="btn btn-warning"> Login </a>
-               
-               <a href="{% url 'cart' %}">
-                  <img  id="cart-icon" src="{% static 'images/cart.png' %}">
-              </a>
-              <p id="cart-total">0</p>
-  
-          </div>
+      <a class="navbar-brand" href="{% url 'store' %}">Ecom</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="{% url 'store' %}"
+              >Store <span class="sr-only">(current)</span></a
+            >
+          </li>
+        </ul>
+        <div class="form-inline my-2 my-lg-0">
+          <a href="#" class="btn btn-warning"> Login </a>
+
+          <a href="{% url 'cart' %}">
+            <img id="cart-icon" src="{% static 'images/cart.png' %}" />
+          </a>
+          <p id="cart-total">0</p>
         </div>
-      </nav>
+      </div>
+    </nav>
 
     <div class="container">
       <br />
-      {% block content %}
-      
-      
-      
-      {% endblock content %}
+      {% block content %} {% endblock content %}
     </div>
     <script
       src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
@@ -75,5 +85,6 @@
       integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
       crossorigin="anonymous"
     ></script>
+    <script type="text/javascript" src="{% static 'js/cart.js' %}"></script>
   </body>
 </html>
