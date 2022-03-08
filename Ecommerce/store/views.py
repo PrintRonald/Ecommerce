@@ -23,7 +23,7 @@ def store(request):
 	else:
 		#Create empty cart for now for non-logged in user
 		items = []
-		order = {'get_cart_total':0, 'get_cart_items':0}
+		order = {'get_cart_total':0, 'get_cart_items':0, 'shipping':False}
 		cartItems = order['get_cart_items']
 	# renderizamos los productos registrados en nuestro modelos
 	# para mostrarlos en nuestras vistas
@@ -51,9 +51,10 @@ def cart(request):
 		# Create empty cart for now for non-logged in user
 		items = []
 		# creamos un objeto vacío para el usuario no registrado, configurados en 0
-		order = {'get_cart_total': 0, 'get_cart_items': 0}
+		order = {'get_cart_total': 0, 'get_cart_items': 0, 'shipping':False}
+		cartItems = order['get_cart_items']
 
-	context = {'items': items, 'order': order}
+	context = {'items': items, 'order': order, 'cartItems':cartItems}
 	return render(request, 'store/cart.html', context)
 
 
@@ -70,14 +71,17 @@ def checkout(request):
 		    customer=customer, complete=False)
 		# se seleccionan todos los articulos del carrito
 		items = order.orderitem_set.all()
+		cartItems = order.get_cart_items
 	else:
-		# creamos un objeto vacío para el usuario no registrado, configurados en 0
-		order = {'get_cart_total': 0, 'get_cart_items': 0}
 		# si el usuario no está registrado se mostrara una lista vacia llamada elementos
 		# Create empty cart for now for non-logged in user
 		items = []
+		# creamos un objeto vacío para el usuario no registrado, configurados en 0
+		order = {'get_cart_total': 0, 'get_cart_items': 0, 'shipping':False}
+		cartItems = order['get_cart_items']
+		
 
-	context = {'items': items, 'order': order}
+	context = {'items': items, 'order': order, 'cartItems':cartItems}
 	return render(request, 'store/checkout.html', context)
 
 
@@ -90,20 +94,27 @@ def updateItem(request):
 	action = data['action']
 	print('Action:', action)
 	print('Product:', productId)
-	
+	# instanciamos al cliente registrado
 	customer = request.user.customer
+	# el metodo get nos devuelve un objeto que coincide con los parametros de búsqueda 
+	# proporcionados, que deben tener el formato de busqueda de campo ( es la forma 
+	# de especificar una formato WHERE clausula SQL)
 	product = Product.objects.get(id=productId)
+	# obtenemos la orden creada, con get_or_created creamos una instancia de customer y lo
+	# obtenemos de la base de datos ya que el argumento bool esta definido como falso
 	order, created = Order.objects.get_or_create(customer=customer, complete=False)
-
+	# luego para modificar los items hacemos lo mismo que el paso anterior pero referente 
+	# a la orden creada y el producto que se desea agregar o modificar
 	orderItem, created = OrderItem.objects.get_or_create(order=order, product=product)
-
+	# luego si la accion es agregar, sumamos un item a orderItem
+	# de caso contrario se resta
 	if action == 'add':
 		orderItem.quantity = (orderItem.quantity + 1)
 	elif action == 'remove':
 		orderItem.quantity = (orderItem.quantity - 1)
-
+	# se registra la accion 
 	orderItem.save()
-
+	# si la orderItem es menor que 0 se elimina de la misma
 	if orderItem.quantity <= 0:
 		orderItem.delete()
 	return JsonResponse('Item was added', safe=False)

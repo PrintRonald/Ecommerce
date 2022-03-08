@@ -45,6 +45,15 @@ class Order(models.Model):
     def __str__(self):
         return  f'Orden de {self.customer} con id : {self.id}'
     
+    @property
+    def shipings(self):
+        shipings = False
+        orderitems = self.orderitems_set.all()
+        for i in orderitems:
+            if i.product.digital == False:
+                shipings = True
+        return shipings
+    
     # creamos una funcion que nos sume la cantidad de cada articulo y luego sume todo en dinero
     @property
     def get_cart_total(self):
