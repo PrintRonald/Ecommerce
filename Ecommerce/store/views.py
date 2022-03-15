@@ -65,6 +65,26 @@ def cart(request):
 		# para ver el total de articulos del visitante en su carrito
 		for i in cart:
 			cartItems += cart[i]['quantity']
+			# Para obtener el precio total del producto
+			product = Product.objects.get(id=i)
+			# Establecimineto del total
+			total = (product.price * cart[i]['quantity'])
+
+			order['get_cart_total'] += total
+			order['get_cart_items'] += cart[i]['quantity']
+			
+			item = {
+				'id':product.id,
+				'product':{'id':product.id,'name':product.name, 'price':product.price, 
+				'imageURL':product.imageURL}, 'quantity':cart[i]['quantity'],
+				'digital':product.digital,'get_total':total,
+				}
+			# agregamos a nuestra lista items todos los elementos que tiene el carrito
+			items.append(item)
+			# consulta para verificar la información de envío
+			if product.digital == False:
+				order['shipping'] = True
+
 
 	context = {'items': items, 'order': order, 'cartItems':cartItems}
 	return render(request, 'store/cart.html', context)
