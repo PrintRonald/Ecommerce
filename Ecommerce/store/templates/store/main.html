@@ -26,26 +26,60 @@
     <!-- creamos esta etiqueta para consultar si está el usuario registrado o no  
     para lo cual creamos una variable que almecene esta solicitud de usuario-->
     <script type="text/javascript">
-      var user = "{{request.user}}"
-      // Funcion para crear el token CSRF 
+      var user = "{{request.user}}";
+      // Funcion para crear el token CSRF
       function getToken(name) {
-		    var cookieValue = null;
-		    if (document.cookie && document.cookie !== '') {
-		        var cookies = document.cookie.split(';');
-		        for (var i = 0; i < cookies.length; i++) {
-		            var cookie = cookies[i].trim();
-		            // Does this cookie string begin with the name we want?
-                // ¿Esta cadena de cookies comienza con el nombre que queremos?
-		            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-		                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-		                break;
-		            }
-		        }
-		    }
-		    return cookieValue;
-		}
-		var csrftoken = getToken('csrftoken')
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          var cookies = document.cookie.split(";");
+          for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            // ¿Esta cadena de cookies comienza con el nombre que queremos?
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+              cookieValue = decodeURIComponent(
+                cookie.substring(name.length + 1)
+              );
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+      var csrftoken = getToken("csrftoken");
 
+      function getCookie(name) {
+        // Split cookie string and get all individual name=value pairs in an array
+        // Divida la cadena de cookies y obtenga todos los pares individuales de nombre=valor en una matriz
+        var cookieArr = document.cookie.split(";");
+
+        // Loop through the array elements
+        // Recorrer los elementos de la matriz
+        for (var i = 0; i < cookieArr.length; i++) {
+          var cookiePair = cookieArr[i].split("=");
+
+          /* Removing whitespace at the beginning of the cookie name
+		        and compare it with the given string */
+          /* Eliminando los espacios en blanco al principio del nombre de la cookie
+            y compararlo con la cadena dada */
+          if (name == cookiePair[0].trim()) {
+            // Decode the cookie value and return
+            // Decodifica el valor de la cookie y regresa
+            return decodeURIComponent(cookiePair[1]);
+          }
+        }
+        // Return null if not found
+        // Devuelve nulo si no se encuentra
+        return null;
+      }
+      var cart = JSON.parse(getCookie("cart"));
+
+      if (cart == undefined) {
+        cart = {};
+        console.log("Cart Created!", cart);
+        document.cookie = "cart=" + JSON.stringify(cart) + ";domain=;path=/";
+      }
+      console.log("Cart:", cart);
     </script>
   </head>
   <body>

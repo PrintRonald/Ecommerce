@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from .models import *
 # importamos json para traer los datos y analizarlos
 import json
+import datetime 
 
 
 # Creando las vistas de la aplicación
@@ -22,6 +23,7 @@ def store(request):
 		cartItems = order.get_cart_items
 	else:
 		#Create empty cart for now for non-logged in user
+		#Crear carrito vacío por ahora para usuarios no registrados
 		items = []
 		order = {'get_cart_total':0, 'get_cart_items':0, 'shipping':False}
 		cartItems = order['get_cart_items']
@@ -47,12 +49,22 @@ def cart(request):
 		items = order.orderitem_set.all()
 		cartItems = order.get_cart_items
 	else:
+		# los usuarios que visitan por primera vez el sitio 
+		# veran un error para evitarlo creamos esta excepción
+		try:
+			cart = json.loads(request.COOKIES['cart'])
+		except:
+			cart = {}
+			print('CART:', cart)
 		# si el usuario no está registrado se mostrara una lista vacia llamada elementos
 		# Create empty cart for now for non-logged in user
 		items = []
 		# creamos un objeto vacío para el usuario no registrado, configurados en 0
 		order = {'get_cart_total': 0, 'get_cart_items': 0, 'shipping':False}
 		cartItems = order['get_cart_items']
+		# para ver el total de articulos del visitante en su carrito
+		for i in cart:
+			cartItems += cart[i]['quantity']
 
 	context = {'items': items, 'order': order, 'cartItems':cartItems}
 	return render(request, 'store/cart.html', context)
@@ -118,3 +130,31 @@ def updateItem(request):
 	if orderItem.quantity <= 0:
 		orderItem.delete()
 	return JsonResponse('Item was added', safe=False)
+
+def processOrder(request):
+	# para identificar el id de la transacción utilizamos una marca de tiempo
+	transaction_id = datetime.datetime.now().timestamp()
+	data = json.loads(request.body)
+
+	if request.user.is_authenticated:
+		customer = request.user.customer
+		order, created = Order.objects.get_or_create(customer=customer, complete=False)
+		total = float(data['form']['total'])
+		order.transaction_id = transaction_id
+		# ejecutamos una comparacíon entre total enviado y total carrito
+		if total == order.get_cart_total:
+			order.complete = True
+		order.save()
+		# si se envia una direccion de envío creamos una instancia de direccion
+		if order.shipping == True:
+			ShippingAddress.objects.create(
+			customer=customer,
+			order=order,
+			address=data['shipping']['address'],
+			city=data['shipping']['city'],
+			state=data['shipping']['state'],
+			zipcode=data['shipping']['zipcode'],
+			)
+	else:
+		print('User is not logged in')
+	return JsonResponse('Pyment subbmitted...', safe=False)
